@@ -1,0 +1,15 @@
+CREATE DATABASE IF NOT EXISTS pangkalan_fhising
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE pangkalan_fhising;
+
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(190) NULL UNIQUE,
+    password VARCHAR(255) NULL,
+    google_id VARCHAR(255) NULL UNIQUE,
+    picture TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

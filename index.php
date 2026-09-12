@@ -1,0 +1,1006 @@
+<?php
+session_start();
+
+$user = $_SESSION['user'] ?? null;
+
+function e($value) {
+    return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
+}
+
+function avatarInitial($name) {
+    $name = trim($name);
+    if ($name === '') return '?';
+    return strtoupper(substr($name, 0, 1));
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tambak Fhising — Pemancingan Pangkalan Pati</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  :root{
+    --gold: #cda15a;
+    --gold-bright: #e8c580;
+    --cream: #f4ead9;
+    --ink: #0d1218;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    font-family:'Jost', sans-serif;
+    color:var(--cream);
+    background:var(--ink);
+    overflow-x:hidden;
+  }
+
+
+  .gambartambak{
+    position:relative;
+    min-height:100vh;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    background-image:
+      linear-gradient(180deg, rgba(6,10,16,0.75) 0%, rgba(6,10,16,0.15) 30%, rgba(6,10,16,0.35) 70%, rgba(6,10,16,0.85) 100%),
+      url('gambartambak.png');
+    background-size:cover;
+    background-position:center 55%;
+    background-repeat:no-repeat;
+  }
+
+  .navbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:34px 5vw 0 5vw;
+    animation:fadeDown 1s ease both;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+
+  .brand-icon{
+    width:58px;
+    height:58px;
+    flex-shrink:0;
+  }
+
+  .brand-text .brand-name{
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.6rem;
+    letter-spacing:0.12em;
+    color:var(--gold-bright);
+    line-height:1.05;
+  }
+
+  .brand-text .brand-sub{
+    font-size:0.62rem;
+    letter-spacing:0.16em;
+    color:var(--cream);
+    opacity:0.85;
+    margin-top:4px;
+    text-transform:uppercase;
+  }
+
+  .nav-links{
+    display:flex;
+    gap:44px;
+    list-style:none;
+  }
+
+  .nav-links a{
+    color:var(--cream);
+    text-decoration:none;
+    font-size:0.78rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    font-weight:400;
+    position:relative;
+    padding-bottom:6px;
+    transition:color .25s ease;
+  }
+
+  .nav-links a::after{
+    content:"";
+    position:absolute;
+    left:0; bottom:0;
+    width:0%;
+    height:1px;
+    background:var(--gold-bright);
+    transition:width .3s ease;
+  }
+
+  .nav-links a:hover{ color:var(--gold-bright); }
+  .nav-links a:hover::after{ width:100%; }
+
+  .btn-reserve{
+    background:var(--cream);
+    color:var(--ink);
+    border:none;
+    padding:14px 30px;
+    font-family:'Jost', sans-serif;
+    font-size:0.75rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    border-radius:999px;
+    cursor:pointer;
+    transition:transform .25s ease, background .25s ease;
+  }
+
+  .btn-reserve:hover{
+    background:var(--gold-bright);
+    transform:translateY(-2px);
+  }
+
+  .hero-content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:0 5vw;
+    max-width:760px;
+    margin-top:40px;
+  }
+
+  .eyebrow{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:22px;
+    opacity:0;
+    animation:fadeUp .9s ease .3s forwards;
+  }
+
+  .eyebrow .line{
+    width:46px;
+    height:2px;
+    background:var(--gold-bright);
+  }
+
+  .eyebrow span{
+    font-size:0.72rem;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--gold-bright);
+  }
+
+  .hero-title{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    font-size:clamp(2.6rem, 6vw, 4.6rem);
+    line-height:1.05;
+    text-transform:uppercase;
+    color:var(--cream);
+    opacity:0;
+    animation:fadeUp .9s ease .5s forwards;
+  }
+
+  .hero-title em{
+    font-style:normal;
+    color:var(--gold-bright);
+  }
+
+  .hero-desc{
+    margin-top:22px;
+    max-width:440px;
+    font-size:1rem;
+    line-height:1.65;
+    color:var(--cream);
+    opacity:0;
+    animation:fadeUp .9s ease .7s forwards;
+  }
+
+  .hero-cta{
+    margin-top:36px;
+    opacity:0;
+    animation:fadeUp .9s ease .9s forwards;
+  }
+
+  .btn-outline{
+    display:inline-flex;
+    align-items:center;
+    gap:12px;
+    background:transparent;
+    border:1px solid var(--gold-bright);
+    color:var(--gold-bright);
+    padding:16px 30px;
+    font-family:'Jost', sans-serif;
+    font-size:0.78rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    text-decoration:none;
+    transition:all .3s ease;
+  }
+
+  .btn-outline:hover{
+    background:var(--gold-bright);
+    color:var(--ink);
+  }
+
+  .features{
+    display:flex;
+    flex-wrap:wrap;
+    gap:36px;
+    padding:0 5vw 48px 5vw;
+    opacity:0;
+    animation:fadeUp .9s ease 1.1s forwards;
+  }
+
+  .feature{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding-right:36px;
+    border-right:1px solid rgba(244,234,217,0.25);
+  }
+
+  .feature:last-child{ border-right:none; }
+
+  .feature-icon{
+    width:34px;
+    height:34px;
+    flex-shrink:0;
+    color:var(--gold-bright);
+  }
+
+  .feature-title{
+    font-size:0.85rem;
+    font-weight:600;
+    letter-spacing:0.04em;
+    color:var(--cream);
+  }
+
+  .feature-sub{
+    font-size:0.78rem;
+    color:var(--cream);
+    opacity:0.75;
+    margin-top:2px;
+  }
+
+  @keyframes fadeDown{
+    from{ opacity:0; transform:translateY(-16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  @keyframes fadeUp{
+    from{ opacity:0; transform:translateY(18px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  @media (max-width: 900px){
+    .nav-links{ display:none; }
+    .features{ gap:24px; }
+    .feature{ padding-right:0; border-right:none; width:100%; }
+  }
+
+  @media (max-width: 520px){
+    .navbar{ padding:22px 6vw 0 6vw; }
+    .brand-icon{ width:44px; height:44px; }
+    .brand-text .brand-name{ font-size:1.15rem; }
+    .hero-content{ padding:0 6vw; margin-top:20px; }
+    .btn-reserve{ padding:11px 20px; font-size:0.68rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; opacity:1 !important; transform:none !important; }
+  }
+  
+#lokasi {
+    padding: 80px 8%;
+    background: #0d1218;
+
+    display: flex;
+    align-items: left;
+    justify-content: space-between;
+    gap: 50px;
+}
+
+#lokasi h2 {
+    color: #e5c77a;
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+#lokasi p {
+    max-width: 650px;
+    margin: 0 auto 35px;
+    color: #d8d0c4;
+    line-height: 1.8;
+}
+
+.map-container {
+    width: 55%;
+    max-width: none;
+    overflow: hidden;
+    border-radius: 15px;
+    border: 1px solid rgba(229, 199, 122, 0.5);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+}
+
+.map-container iframe {
+    display: block;
+}
+.map-section {
+    display: flex;
+    width: 130%;
+    max-width: 1200px;
+    height: 600px;
+    margin: 0 auto;
+}
+
+.map-area {
+    width: 60%;
+}
+
+.map-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 15px 0 0 15px;
+    border: 1px solid rgba(229, 199, 122, 0.5);
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.vendor-panel {
+    width: 40%;
+    height: 100%;
+    overflow-y: auto;
+    background: #ffffff;
+    border-radius: 0 15px 15px 0;
+}
+
+.vendor-item {
+    padding: 20px 25px;
+    border-bottom: 1px solid #ddd;
+}
+
+.vendor-item h1 {
+    margin: 0 0 10px;
+    font-size: 16px;
+    color: #111;
+}
+
+.vendor-item p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #333;
+}
+section h3 {
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  text-align: center;
+  
+}
+section h4 {
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  text-align: center;
+  
+}
+.why-content h2 {
+  font-size: 32px;
+  font-weight: 600;
+
+  background: linear-gradient(
+    90deg,
+    #E5C77A,
+    #FFF2C2,
+    #BD872A
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.why-content h3 {
+  font-size: 32px;
+  font-weight: 600;
+
+  background: linear-gradient(
+    90deg,
+    #E5C77A,
+    #FFF2C2,
+    #BD872A
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.why-content h4 {
+  font-size: 32px;
+  font-weight: 600;
+
+  background: linear-gradient(
+    90deg,
+    #59440f,
+    #483e18,
+    #533706
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+  #menu-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+.card {
+  width: 300px;
+  background: linear-gradient(#c9b19b, #bd872a);
+  overflow: hidden;
+  border-radius: 15px;
+  justify-content: center;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+}
+.card img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
+.card-body h4 {
+    margin: 0 0 10px;
+    color: #fff2c2;
+    font-size: 30px;
+    text-align: center;
+}
+
+.card-body p {
+    margin: 0 auto 15px;
+    color: #f4ead9;
+    font-size: 18px;
+    line-height: 1.6;
+    text-align: center;
+    max-width: 350px;
+}
+
+.card-body h5 {
+    margin: 0;
+    color: #fff2c2;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+.satu-section {
+   width: 84%;
+    padding: 40px 8%;
+}
+.satu-content {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+}
+section body {
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  text-align: center;
+}
+
+#gallery {
+    padding: 100px 8%;
+    background: linear-gradient(
+        180deg,
+        #211810 0%,
+        #2b1d12 50%,
+        #211810 100%
+    );
+    color: #f4ead9;
+}
+
+/* JUDUL */
+
+.gallery-heading {
+    text-align: center;
+    max-width: 650px;
+    margin: 0 auto 55px;
+}
+
+.gallery-heading span {
+    color: #cda15a;
+    font-size: 12px;
+    letter-spacing: 5px;
+    font-weight: 600;
+}
+
+.gallery-heading h2 {
+    margin: 12px 0 15px;
+    font-size: 42px;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.gold-line {
+    width: 55px;
+    height: 1px;
+    background: #cda15a;
+    margin: 0 auto 20px;
+}
+
+.gallery-heading p {
+    color: #cfc3b3;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+
+/* GRID FOTO */
+
+.gallery-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+}
+
+
+/* FOTO UTAMA */
+
+.gallery-main {
+    height: 600px;
+    overflow: hidden;
+    border-radius: 4px;
+    position: relative;
+}
+
+.gallery-main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.7s ease;
+}
+
+.gallery-main:hover img {
+    transform: scale(1.04);
+}
+
+
+/* FOTO SAMPING */
+
+.gallery-side {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 20px;
+}
+
+.gallery-item {
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.7s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.04);
+}
+
+.gallery-message {
+    max-width: 750px;
+    margin: 65px auto 0;
+    text-align: center;
+}
+
+.gallery-message p {
+    color: #e9dece;
+    font-size: 17px;
+    line-height: 1.9;
+    font-style: italic;
+}
+
+.gallery-message span {
+    display: block;
+    margin-top: 20px;
+    color: #cda15a;
+    font-size: 12px;
+    letter-spacing: 3px;
+}
+
+footer {
+  background-color: #b59a2d;
+  color: #f5f4f0;
+  text-align: center;
+  padding: 10px;
+  font-size: 10px;
+}
+
+/* =========================
+   LOGIN / USER PROFILE
+   ========================= */
+
+.nav-account{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+
+.btn-reserve{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+}
+
+.login-link{
+  color:var(--cream);
+  text-decoration:none;
+  font-size:.75rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  transition:color .25s ease;
+}
+
+.login-link:hover{
+  color:var(--gold-bright);
+}
+
+.profile-menu{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--cream);
+  text-decoration:none;
+}
+
+.profile-name{
+  font-size:.78rem;
+  letter-spacing:.06em;
+  white-space:nowrap;
+}
+
+.profile-avatar{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  object-fit:cover;
+  border:1px solid rgba(232,197,128,.85);
+  box-shadow:0 4px 18px rgba(0,0,0,.25);
+}
+
+.profile-initial{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--gold);
+  color:var(--ink);
+  font-weight:600;
+  font-size:1rem;
+}
+
+@media (max-width:900px){
+  .nav-account{
+    gap:12px;
+  }
+  .profile-name{
+    display:none;
+  }
+}
+
+@media (max-width:520px){
+  .nav-account .btn-reserve{
+    padding:11px 16px;
+  }
+}
+
+</style>
+</head>
+<body>
+<header>
+<section class="gambartambak">
+
+  <nav class="navbar">
+    <div class="brand">
+      <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 55 C15 35, 30 22, 48 22 C60 22, 68 28, 72 34" stroke="#cda15a" stroke-width="2.2" fill="none"/>
+        <path d="M15 76 L35 20 L55 76
+         M23 55 H47
+         M52 76 V20 H68
+         C80 20 86 26 86 37
+         C86 48 80 54 68 54 H52"
+      stroke="#cda15a"
+      stroke-width="3.2"
+      fill="none"
+      stroke-linecap="round"
+      stroke-linejoin="round"/>
+      </svg>
+      <div class="brand-text">
+        <div class="brand-name">TAMBAK<br>FISHING</div>
+        <div class="brand-sub">Pemancingan Pangkalan Pati</div>
+      </div>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="#beranda">Beranda</a></li>
+      <li><a href="#lokasi">Lokasi</a></li>
+      <li><a href="#fasilitas">Fasilitas</a></li>
+      <li><a href="#tentang">Tentang Kami</a></li>
+      <li><a href="#kontak">Kontak</a></li>
+    </ul>
+
+    <div class="nav-account">
+      <a class="btn-reserve"
+         href="<?= $user ? 'reservasi.php' : 'login.php?redirect=reservasi.php' ?>">
+         Reservasi
+      </a>
+
+      <?php if ($user): ?>
+        <a href="profil.php" class="profile-menu" aria-label="Profil <?= e($user['name']) ?>">
+          <span class="profile-name"><?= e($user['name']) ?></span>
+
+          <?php if (!empty($user['picture'])): ?>
+            <img class="profile-avatar"
+                 src="<?= e($user['picture']) ?>"
+                 alt="Foto profil <?= e($user['name']) ?>">
+          <?php else: ?>
+            <span class="profile-avatar profile-initial">
+              <?= e(avatarInitial($user['name'])) ?>
+            </span>
+          <?php endif; ?>
+        </a>
+      <?php else: ?>
+        <a href="login.php" class="login-link">Login</a>
+      <?php endif; ?>
+    </div>
+  </nav>
+
+  <div class="hero-content">
+    <div class="eyebrow">
+      <span class="line"></span>
+      <span>Nikmati Waktu Terbaik</span>
+    </div>
+
+    <h1 class="hero-title">Rileks, Mancing,<br><em>&amp; Pangkalan Maju</em></h1>
+
+    <p class="hero-desc">
+      Pemancingan ikan babon dengan suasana alami dan nikmati sensasi tarikan yang tak terlupakan.
+    </p>
+
+    <div class="hero-cta">
+      <a href="https://wa.me/62895403048197" class="btn-outline">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M5 12h14M13 6l6 6-6 6"/>
+        </svg>
+        Mulai Mancing
+      </a>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 26c2 6 8 10 16 10 10 0 18-7 20-10-2-3-10-10-20-10-8 0-14 4-16 10z" stroke="currentColor" stroke-width="1.7"/>
+        <circle cx="30" cy="26" r="1.6" fill="currentColor"/>
+        <path d="M6 26l-4-5m4 5l-4 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="feature-title">Ikan Babon</div>
+        <div class="feature-sub">Mantap pokoknya</div>
+      </div>
+    </div>
+
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 8c8 4 12 12 12 20 0 6-5 11-12 11s-12-5-12-11c0-8 4-16 12-20z" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M24 20v18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="feature-title">Alam Asri</div>
+        <div class="feature-sub">Suasana tenang &amp; syahdu</div>
+      </div>
+    </div>
+
+    <div class="feature">
+      <svg class="feature-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="16" r="5" stroke="currentColor" stroke-width="1.7"/>
+        <circle cx="32" cy="18" r="4" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M8 38c0-7 5-12 10-12s10 5 10 12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        <path d="M27 27c5 0 9 5 9 11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="feature-title">Cocok Untuk Semua</div>
+        <div class="feature-sub">Keluarga, teman, sendiri</div>
+      </div>
+    </div>
+  </div>
+</header>
+</section>
+<section class="satu-section" id="tentang">
+   <div class="why-content">
+      <h2>Welcome To Pangkalan</h2>
+          <p class="satu-deskripsi">
+    Karena di daerah kami yang paling terkenal akan pemancingan ialah desa Pangkalan
+    karena menyajikan lokasi yang strategis dan jugu tempat serta fasilitas yang nyaman
+    selain itu juga dilengkapi dengan adanya restoran yang bisa langsung memasak ikan hasil tangkapan.
+          </p>
+   </div>
+   
+    <div class="map-section">
+
+    <div class="map-area">
+      <div class="map-container">
+        <iframe
+          src="https://www.google.com/maps?q=-6.617621048562938, 111.08209174155638&output=embed"
+          width="55%"
+          height="100"
+          style="border:0;"
+          allowfullscreen=""
+          loading="lazy">
+        </iframe>
+    </div>
+        
+    </div>
+
+    <!-- DAFTAR VENDOR -->
+    <div class="vendor-panel">
+
+        <div class="vendor-item">
+            <h1>Vendor 01</h1>
+            <p>Petani tambak ikan nila Desa Pangkalan.</p>
+        </div>
+
+        <div class="vendor-item">
+            <h1>Vendor 02</h1>
+            <p>Petani tambak ikan bandeng Desa Pangkalan.</p>
+        </div>
+
+        <div class="vendor-item">
+            <h1>Vendor 03</h1>
+            <p>Petani tambak ikan lele Desa Pangkalan.</p>
+        </div>
+
+        <div class="vendor-item">
+            <h1>Vendor 04</h1>
+            <p>Petani tambak ikan gurame Desa Pangkalan.</p>
+        </div>
+        
+        <div class="vendor-item">
+            <h1>Vendor 05</h1>
+            <p>Petani tambak ikan bawal Desa Pangkalan.</p>
+        </div>
+
+        <div class="vendor-item">
+            <h1>Vendor 06</h1>
+            <p>Petani tambak mancing sepuase.</p>
+        </div>
+
+        <div class="vendor-item">
+            <h1>Vendor 07</h1>
+            <p>Petani tambak josjis pokok e.</p>
+        </div>
+
+        <div class="vendor-item">
+            <h1>Vendor 08</h1>
+            <p>Petani tambak anti baperan.</p>
+        </div>
+
+        <div class="vendor-item">
+            <h1>Vendor 09</h1>
+            <p>Petani tambak abot sanggane.</p>
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+<section id="lokasi">
+  <div class="why-content">
+  <h3>Lokasi Pemancingan</h3>
+  <div id="menu-container">
+    <div class="card">
+      <img src="Gambarposter.png" alt="Pemancingan Bergengsi">
+      <div class="card-body">
+        <h4>Pemancingan Mas Arkea</h4>
+        <p>
+          Tarikan ikan nila yang memberikan sensasi menantang dan keseruan
+        </p>
+        <h5>Rp 22.000 - Rp 35.000 / kilo</h5> 
+      </div>
+    </div>
+    <div id="menu-container">
+    <div class="card">
+      <img src="Gambar1.png" alt="Pemancingan Bergengsi">
+      <div class="card-body">
+        <h4>Pemancingan Mas Arkea</h4>
+        <p>
+          Tarikan ikan Bawal yang membuat joran melengkung tajam
+        </p>
+        <h5>Rp 22.000 - Rp 35.000 / kilo</h5> 
+      </div>
+    </div>
+    <div id="menu-container">
+    <div class="card">
+      <img src="Gambar2.png" alt="Pemancingan Bergengsi">
+      <div class="card-body">
+        <h4>Pemancingan Mas Arkea</h4>
+        <p>
+          Tarikan ikan bandeng membuat joranmu serasa akan patah 
+        </p>
+        <h5>Rp 22.000 - Rp 35.000 / kilo</h5> 
+      </div>
+    </div>
+  </div> 
+  </div>
+</section>
+<section id="gallery">
+
+    <div class="gallery-heading">
+        <span>OUR MOMENTS</span>
+        <h2>Gallery</h2>
+        <div class="gold-line"></div>
+        <p>
+            Beberapa momen yang menjadi bagian dari perjalanan
+            dan pengalaman bersama.
+        </p>
+    </div>
+
+    <div class="gallery-grid">
+
+        <div class="gallery-main">
+            <img src="gambar3.jpeg" alt="Momen 1">
+        </div>
+
+        <div class="gallery-side">
+
+            <div class="gallery-item">
+                <img src="gambar4.jpeg" alt="Momen 2">
+            </div>
+
+            <div class="gallery-item">
+                <img src="gambar5.jpeg" alt="Momen 3">
+            </div>
+            
+        </div>
+
+    </div>
+
+    <div class="gallery-message">
+        <p>
+            “Pembelajaran selama tiga minggu ini tiada tanpa terasa,
+            banyak hal yang saya dapat dari matrikulasi kali ini, mulai dari
+            pengetahuan pertemanan bahkan pengalaman yang tidak bisa terlupakan.
+            Mulai dari dosen pengampu yang mengajarkan dasar-dasar komputasi secara perlahan
+            dengan penuh antusias dan teman-teman yang saling tanya untuk mengerti satu sama lain.”
+        </p>
+
+        <span>— Kesan & Pesan</span>
+    </div>
+
+</section>
+<footer> Instagram : @pangkalan_fhising | TikTok : @pangkalan_fhising | Nomor : 08123456789
+  <p>&copy; 2026 Pangkalan Fhising. Hak Cipta Dilindungi.</p></footer>
+</body>
+</html>
