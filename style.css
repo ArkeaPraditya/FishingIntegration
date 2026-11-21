@@ -446,9 +446,12 @@ h3{
 /* ---------- Lokasi ---------- */
 .location { 
   display: grid; 
-  grid-template-columns: 1fr; 
-  gap: clamp(1.5rem, 5vw, 4rem); 
-  align-items: center; 
+  grid-template-columns: minmax(0, 1fr); 
+  gap: clamp(1.5rem, 5vw, 3rem); 
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 } 
 
 .location-info p { 
@@ -459,10 +462,12 @@ h3{
 .map-frame { 
   min-height: 320px; 
   width: 100%; 
+  max-width: 100%;
   aspect-ratio: 4 / 3; 
   overflow: hidden; 
   background: var(--pond-800); 
   border-radius: var(--radius); 
+  box-sizing: border-box;
 } 
 
 .map-frame iframe { 
@@ -474,7 +479,7 @@ h3{
 
 @media (min-width: 768px) {
   .location {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr);
   }
 }
 
